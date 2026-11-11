@@ -72,12 +72,12 @@ async def search_fault_knowledge(question: str, ctx: Context):
         "knowledge_base_id": "kb-fault-codes",
     }
 
-    # 等待 RAG 检索结果，单次请求超时为 120 秒。
+    # 包含本地模型排队时间；连接最多等 5 秒，读取结果最多等 45 秒。
     try:
         response = await client.post(
             url,
             json=payload,
-            timeout=3,
+            timeout=httpx.Timeout(45, connect=5),
         )
         # HTTP 错误直接抛出，避免把检索服务故障当成“没有查到资料”。
         response.raise_for_status()
